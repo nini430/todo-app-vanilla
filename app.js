@@ -5,18 +5,26 @@ let list=document.querySelector('.list');
 
 let functions={
     addToDo:(e)=>{
-        e.preventDefault();
-        let todo=input.value;
-        let newTodo={
-            task:todo,
-            status:false,
-            edit:false
+        if(input.value===""||input.value.trim().length===0) {
+            alert("no input!")
+        }else{
+            e.preventDefault();
+            let todo=input.value;
+            let newTodo={
+                task:todo,
+                status:false,
+                edit:false
+            }
+    
+            input.value="";
+    
+            services.addToDo(newTodo);
+            functions.appendElement(newTodo);
+            pagination.render();
+            pagination.goToLastPage();
+            pagination.showPagination();
         }
-
-        input.value="";
-
-        services.addToDo(newTodo);
-        functions.appendElement(newTodo);
+       
 
     },
     appendElement:function(newTodo) {
@@ -28,6 +36,19 @@ let functions={
     removeTodo:(elem,itemId)=>{
             services.removeTodo(itemId);
             functions.removeElement(elem.parentNode);
+            pagination.render();
+            
+            let fragmented=services.getPagedData(pagination.currentPage);
+            console.log(fragmented);
+            if(fragmented.length===0&&pagination.currentPage>1) {
+                    pagination.prev();
+                    fragmented=services.getPagedData(pagination.currentPage);
+
+            }
+            functions.render(fragmented);
+            pagination.showPagination();
+            
+            
             
 
     },
@@ -104,20 +125,42 @@ let functions={
             functions.toggleEdit(event.target.parentNode,itemId);
         }
         else if(event.which===13) {
-            services.updateValue(itemId,event.target.value);
+            if(event.target.value===""||event.target.value.trim().length===0) {
+                alert('no input')
+            }else{
+                services.updateValue(itemId,event.target.value);
             functions.toggleEdit(event.target.parentNode,itemId);
+            }
+            
             
         }
     },
     save:(event,itemId)=>{
         const elemParent=event.target.parentNode;
-        const value=elemParent.firstElementChild.value;
+        if(elemParent.firstElementChild.value===""||elemParent.firstElementChild.value.trim().length===0) {
+            alert("no input")
+        }else{
+            const value=elemParent.firstElementChild.value;
         services.updateValue(itemId,value);
         functions.toggleEdit(elemParent,itemId)
+        }
+        
     },
     cancel:(event,itemId)=>{
         const elemParent=event.target.parentNode;
         functions.toggleEdit(elemParent,itemId);
+    },
+    render:(todos)=>{
+        list.innerText="";
+        if(todos.length===0) {
+            list.innerText="No todos yet,be cool and add the first one";
+        }else{
+            list.innerText="";
+            for(let i=0;i<todos.length;i++) {
+                const item=functions.getItemView(todos[i]);
+                list.appendChild(item);
+            }
+        }
     }
 }
 
@@ -126,4 +169,6 @@ let functions={
 
 addBtn.addEventListener("click",functions.addToDo);
 list.addEventListener("dblclick",functions.onToggleEvent);
+
+functions.render(services.getPagedData(1))
 

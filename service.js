@@ -3,6 +3,10 @@ let state={
 }
 
 
+
+
+
+
 let services={
     addToDo:function(newToDo) {
         newToDo.id=state.todos.length+1;
@@ -53,5 +57,17 @@ let services={
         state.todos=[...newTodo];
     
 
+    },
+
+    getTodoCount:()=>{
+        return state.todos.length;
+    },
+
+    getPagedData:(page)=>{
+        let start=pagination.record_per_page*(page-1);
+        let end=start+pagination.record_per_page;
+        const fragmented=state.todos.slice(start,end);
+        return fragmented;
     }
+    
 }
