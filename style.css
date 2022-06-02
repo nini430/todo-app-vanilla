@@ -1,0 +1,10 @@
+
+.line-through {
+    text-decoration:line-through;
+    opacity:0.5;
+    color:red;
+}
+
+.none {
+    display:none;
+}
